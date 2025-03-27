@@ -1,0 +1,1 @@
+This folder will record all the documents related with the project.
