@@ -10,6 +10,7 @@ dependencies:
   - numpy=1.23.3
   - cython==0.29.33
   - pip:
+      - huggingface-hub==0.25.0
       - Pillow==9.5.0
       - gradio==3.50.0
       - albumentations==0.4.3

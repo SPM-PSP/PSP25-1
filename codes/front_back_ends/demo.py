@@ -44,7 +44,7 @@ def parse_args():
     parser.add_argument(
         "--model_path",
         type=str,
-        default="models/3/anytext_1.ckpt",
+        default=r"D:\dachuan\anytext\AnyText\models\9\9.ckpt",
         help="load a specified anytext checkpoint"
     )
     args = parser.parse_args()
@@ -252,24 +252,44 @@ def resize_h(h, img1, img2):
 is_t2i = 'true'
 
 # 读取 description.txt 文件
-def load_description_from_txt():
-    #modelscope_cache = os.getenv('MODELSCOPE_CACHE')
-    #if modelscope_cache is None:
-    txt_path = model_folder+"description.txt"  # 假设文件位于当前目录
-    #else:
-    #    txt_path = modelscope_cache+"iic/cv_anytext_text_generation_editing/anytext/configuration.json"#后面要改configuration,这里暂时这样
+def load_description_from_json():
+    """
+    从环境变量 MODELSCOPE_CACHE 中读取配置文件路径，并加载 description 字段。
+    """
+    # 获取环境变量 MODELSCOPE_CACHE
+    modelscope_cache = os.getenv('MODELSCOPE_CACHE')
+    
+    # 如果环境变量未设置，使用默认路径
+    if modelscope_cache is None:
+        json_path = model_folder
+        json_path = os.path.join(json_path, "iic/cv_anytext_text_generation_editing/configuration.json")
+        print(f"环境变量 MODELSCOPE_CACHE 未设置，使用默认路径: {json_path}")
+    else:
+        # 拼接完整的 JSON 文件路径
+        json_path = os.path.join(modelscope_cache, "iic/cv_anytext_text_generation_editing/configuration.json")
+        print(f"从环境变量 MODELSCOPE_CACHE 构建路径: {json_path}")
+    
     try:
-        with open(txt_path, "r", encoding="utf-8") as file:
-            lines = file.readlines()#后面改成json处理逻辑
-            return [line.strip() for line in lines]  # 读取文件内容并去除多余空白
+        # 尝试打开并读取 JSON 文件
+        with open(json_path, "r", encoding="utf-8") as file:
+            config_data = json.load(file)
+        
+        # 提取 description 字段
+        description_tags = config_data.get("description", [])
+        if not isinstance(description_tags, list):
+            description_tags = [description_tags]  # 确保结果为列表
+        
+        return description_tags
+    
     except FileNotFoundError:
         return ["Description file not found."]
+    except json.JSONDecodeError:
+        return ["Failed to parse JSON file."]
     except Exception as e:
         return [f"Error reading description file: {str(e)}"]
 
-# 加载描述信息
-description_tags = load_description_from_txt()
-
+# 测试加载描述信息
+description_tags = load_description_from_json()
 
 
 block = gr.Blocks(css='style.css', theme=gr.themes.Soft()).queue()
@@ -287,7 +307,8 @@ with block:
                document.head.appendChild(script);
                }}""")
     gr.HTML('<div style="text-align: center; margin: 20px auto;"> \
-            基于生成式AI的个性化文创图像作品设计 </div>')
+        <img id="banner" src="file/example_images/banner.png" alt="anytext"> <br>  \
+        </div>')
     with gr.Row(variant='compact'):
         with gr.Column() as left_part:
             pass
@@ -304,40 +325,50 @@ with block:
         with left_part:
             with gr.Accordion('🕹Instructions(说明)', open=False,):
                 with gr.Tabs():
-                    with gr.Tab("English"):
-                        gr.Markdown('<span style="color:#3B5998;font-size:20px">Run Examples</span>')
-                        gr.Markdown('<span style="color:#575757;font-size:16px">AnyText has two modes: Text Generation and Text Editing, and we provides a variety of examples. Select one, click on [Run!] button to run.</span>')
-                        gr.Markdown('<span style="color:gray;font-size:12px">Please note, before running examples, ensure the manual draw area is empty, otherwise may get wrong results. Additionally, different examples use \
-                                     different parameters (such as resolution, seed, etc.). When generate your own, please pay attention to the parameter changes, or refresh the page to restore the default parameters.</span>')
-                        gr.Markdown('<span style="color:#3B5998;font-size:20px">Text Generation</span>')
-                        gr.Markdown('<span style="color:#575757;font-size:16px">Enter the textual description (in Chinese or English) of the image you want to generate in [Prompt]. Each text line that needs to be generated should be \
-                                     enclosed in double quotes. Then, manually draw the specified position for each text line to generate the image.</span>\
-                                     <span style="color:red;font-size:16px">The drawing of text positions is crucial to the quality of the resulting image</span>, \
-                                     <span style="color:#575757;font-size:16px">please do not draw too casually or too small. The number of positions should match the number of text lines, and the size of each position should be matched \
-                                     as closely as possible to the length or width of the corresponding text line. If [Manual-draw] is inconvenient, you can try dragging rectangles [Manual-rect] or random positions [Auto-rand].</span>')
-                        gr.Markdown('<span style="color:gray;font-size:12px">When generating multiple lines, each position is matched with the text line according to a certain rule. The [Sort Position] option is used to \
-                                     determine whether to prioritize sorting from top to bottom or from left to right. You can open the [Show Debug] option in the parameter settings to observe the text position and glyph image \
-                                     in the result. You can also select the [Revise Position] which uses the bounding box of the rendered text as the revised position. However, it is occasionally found that the creativity of the \
-                                     generated text is slightly lower using this method.</span>')
-                        gr.Markdown('<span style="color:#3B5998;font-size:20px">Text Editing</span>')
-                        gr.Markdown('<span style="color:#575757;font-size:16px">Please upload an image in [Ref] as a reference image, then adjust the brush size, and mark the area(s) to be edited. Input the textual description and \
-                                     the new text to be modified in [Prompt], then generate the image.</span>')
-                        gr.Markdown('<span style="color:gray;font-size:12px">The reference image can be of any resolution, but it will be internally processed with a limit that the longer side cannot exceed 768 pixels, and the \
-                                     width and height will both be scaled to multiples of 64.</span>')
-                    with gr.Tab("简体中文"):
-                        gr.Markdown('<span style="color:#3B5998;font-size:20px">运行示例</span>')
-                        gr.Markdown('<span style="color:#575757;font-size:16px">AnyText有两种运行模式：文字生成和文字编辑，每种模式下提供了丰富的示例，选择一个，点击[Run!]即可。</span>')
-                        gr.Markdown('<span style="color:gray;font-size:12px">请注意，运行示例前确保手绘位置区域是空的，防止影响示例结果，另外不同示例使用不同的参数（如分辨率，种子数等），如果要自行生成时，请留意参数变化，或刷新页面恢复到默认参数。</span>')
-                        gr.Markdown('<span style="color:#3B5998;font-size:20px">文字生成</span>')
-                        gr.Markdown('<span style="color:#575757;font-size:16px">在Prompt中输入描述提示词（支持中英文），需要生成的每一行文字用双引号包裹，然后依次手绘指定每行文字的位置，生成图片。</span>\
-                                     <span style="color:red;font-size:16px">文字位置的绘制对成图质量很关键</span>, \
-                                     <span style="color:#575757;font-size:16px">请不要画的太随意或太小，位置的数量要与文字行数量一致，每个位置的尺寸要与对应的文字行的长短或宽高尽量匹配。如果手绘（Manual-draw）不方便，\
-                                     可以尝试拖框矩形（Manual-rect）或随机生成（Auto-rand）。</span>')
-                        gr.Markdown('<span style="color:gray;font-size:12px">多行生成时，每个位置按照一定规则排序后与文字行做对应，Sort Position选项用于确定排序时优先从上到下还是从左到右。\
-                                     可以在参数设置中打开Show Debug选项，在结果图像中观察文字位置和字形图。也可以勾选Revise Position选项，这样会用渲染文字的外接矩形作为修正后的位置，不过偶尔发现这样生成的文字创造性略低。</span>')
-                        gr.Markdown('<span style="color:#3B5998;font-size:20px">文字编辑</span>')
-                        gr.Markdown('<span style="color:#575757;font-size:16px">请上传一张待编辑的图片作为参考图(Ref)，然后调整笔触大小后，在参考图上涂抹要编辑的位置，在Prompt中输入描述提示词和要修改的文字内容，生成图片。</span>')
-                        gr.Markdown('<span style="color:gray;font-size:12px">参考图可以为任意分辨率，但内部处理时会限制长边不能超过768，并且宽高都被缩放为64的整数倍。</span>')
+                    gr.Markdown('<span style="color:#3B5998;font-size:20px">文字生成</span>')
+                    gr.Markdown('<span style="color:#575757;font-size:16px">在Prompt中输入描述提示词（支持中英文），需要生成的每一行文字用双引号包裹，然后依次手绘指定每行文字的位置，确保生成的图像质量。</span>\
+                                    <span style="color:red;font-size:16px">文字位置的绘制至关重要</span>, \
+                                    <span style="color:#575757;font-size:16px">请尽量避免随意或过小的标注。每个位置的数量应与文字行数一致，并确保尺寸与对应文字的长宽比例相匹配。</span>\
+                                </span>')
+                    gr.Markdown('<span style="color:gray;font-size:12px">\
+                                **手绘方式**：可使用 **手绘（Manual-draw）**、**拖框矩形（Manual-rect）** 或 **随机生成（Auto-rand）** 进行标注。\
+                                </span>')
+                    gr.Markdown('<span style="color:gray;font-size:12px">\
+                                **排序规则**：多行文字的位置需按一定规则排序后与文字行对应，**Sort Position** 选项可设定排序方式（优先从上到下或从左到右）。\
+                                </span>')
+                    gr.Markdown('<span style="color:gray;font-size:12px">\
+                                **调试与优化**：可在参数设置中启用 **Show Debug** 选项，以在生成结果中观察文字位置和字形图；**Revise Position** 选项可用渲染后文字的外接矩形修正位置，但可能会影响创造性。\
+                                </span>')
+                    gr.Markdown('<span style="color:gray;font-size:12px">\
+                               **参数调节建议**：\
+                                </span>')
+                    gr.Markdown('<span style="color:gray;font-size:12px">\
+                                **图片模糊** → 提高步数\
+                                </span>')
+                    gr.Markdown('<span style="color:gray;font-size:12px">\
+                                **不需要文字渲染** → 将 `strength` 调至 0\
+                                </span>')
+                    gr.Markdown('<span style="color:gray;font-size:12px">\
+                                **生成图片不符合预期** → 适当降低 `strength`，适当提高 `CFG-Scale`\
+                                </span>')
+                    gr.Markdown('<span style="color:gray;font-size:12px">\
+                                **文字消失或不清晰** → 适当降低 `CFG-Scale`\
+                                </span>')
+                    gr.Markdown('<span style="color:gray;font-size:12px">\
+                                **风格多样性** → `eta = 1`（更具变化）\
+                                </span>')
+                    gr.Markdown('<span style="color:gray;font-size:12px">\
+                                **风格稳定** → `eta = 0`（更保守）\
+                                </span>')
+
+                    gr.Markdown('<span style="color:#3B5998;font-size:20px">文字编辑</span>')
+                    gr.Markdown('<span style="color:#575757;font-size:16px">请上传一张待编辑的图片作为**参考图(Ref)**，然后调整笔触大小后，在参考图上涂抹要编辑的位置，在**Prompt**中输入描述提示词和要修改的文字内容，生成图片。</span>')
+                    gr.Markdown('<span style="color:gray;font-size:12px">\
+                                **注意事项**：\
+                                    - 参考图可为任意分辨率，但处理时 **长边不超过 768**，并且宽高会缩放为 **64 的整数倍**。\
+                                    - 合理选择笔触大小，确保涂抹区域覆盖完整的修改部分。\
+                                    通过这些优化设置，您可以更精准地控制文字生成和编辑效果，创造出更符合需求的视觉作品。 🎨✨\
+                                </span>')
             with gr.Accordion('🛠Parameters(参数)', open=False):
                 with gr.Row(variant='compact'):
                     img_count = gr.Slider(label="Image Count(图片数)", minimum=1, maximum=12, value=4, step=1)
@@ -346,7 +377,7 @@ with block:
                     image_width = gr.Slider(label="Image Width(宽度)", minimum=256, maximum=768, value=512, step=64)
                     image_height = gr.Slider(label="Image Height(高度)", minimum=256, maximum=768, value=512, step=64)
                 with gr.Row(variant='compact'):
-                    strength = gr.Slider(label="Strength(控制力度)", minimum=0.0, maximum=2.0, value=1.0, step=0.01)
+                    strength = gr.Slider(label="Strength(控制力度)", minimum=0.0, maximum=2.0, value=0.8, step=0.01)
                     cfg_scale = gr.Slider(label="CFG-Scale(CFG强度)", minimum=0.1, maximum=30.0, value=9.0, step=0.1)
                 with gr.Row(variant='compact'):
                     seed = gr.Slider(label="Seed(种子数)", minimum=-1, maximum=99999999, step=1, randomize=False, value=-1)
@@ -406,22 +437,16 @@ with block:
                         gr.Markdown("")
                     def exp_gen_click():
                         return [gr.Slider(value=512), gr.Slider(value=512)]  # all examples are 512x512, refresh draw_img
-                    with gr.Tab("中文示例"):
+                    with gr.Tab("示例"):
                         exp_gen_ch = gr.Examples(
                             [
-                                ['一只浣熊站在黑板前，上面写着"深度学习"', "example_images/gen1.png", "Manual-draw(手绘)", "↕", False, 4, 81808278],
-                                ['一个儿童蜡笔画，森林里有一个可爱的蘑菇形状的房子，标题是"森林小屋"', "example_images/gen16.png", "Manual-draw(手绘)", "↕", False, 4, 40173333],
-                                ['一个精美设计的logo，画的是一个黑白风格的厨师，带着厨师帽，logo下方写着“深夜食堂”', "example_images/gen14.png", "Manual-draw(手绘)", "↕", False, 4, 6970544],
-                                ['一张户外雪地靴的电商广告，上面写着 “双12大促！”，“立减50”，“加绒加厚”，“穿脱方便”，“温暖24小时送达”， “包邮”，高级设计感，精美构图', "example_images/gen15.png", "Manual-draw(手绘)", "↕", False, 4, 66980376],
-                                ['一个精致的马克杯，上面雕刻着一首中国古诗，内容是 "花落知多少" "夜来风雨声" "处处闻啼鸟" "春眠不觉晓"', "example_images/gen3.png", "Manual-draw(手绘)", "↔", False, 4, 60358279],
-                                ['一件精美的毛衣，上面有针织的文字："通义丹青"', "example_images/gen4.png", "Manual-draw(手绘)", "↕", False, 4, 48769450],
-                                ['一个双肩包的特写照，上面用针织文字写着”为了无法“ ”计算的价值“', "example_images/gen12.png", "Manual-draw(手绘)", "↕", False, 4, 35552323],
-                                ['一个漂亮的蜡笔画，有行星，宇航员，还有宇宙飞船，上面写的是"去火星旅行", "王小明", "11月1日"', "example_images/gen5.png", "Manual-draw(手绘)", "↕", False, 4, 42328250],
-                                ['一个装饰华丽的蛋糕，上面用奶油写着“阿里云”和"APSARA"', "example_images/gen13.png", "Manual-draw(手绘)", "↕", False, 4, 62357019],
-                                ['一张关于墙上的彩色涂鸦艺术的摄影作品，上面写着“人工智能" 和 "神经网络"', "example_images/gen10.png", "Manual-draw(手绘)", "↕", False, 4, 64722007],
-                                ['一枚中国古代铜钱,  上面的文字是 "康"  "寶" "通" "熙"', "example_images/gen2.png", "Manual-draw(手绘)", "↕", False, 4, 24375031],
+                                ['太阳神鸟金饰，上写着"天路"', "example_images/wenchuang/pos1.png", "Manual-draw(手绘)", "↕", False, 0.7, 11573584],
+                                ['长信宫灯，写着"平安"', "example_images/wenchuang/pos2.png", "Manual-draw(手绘)", "↕", False, 0.9, 69283149],
+                                ['水晶白菜，“白菜”', "example_images/wenchuang/pos3.png", "Manual-draw(手绘)", "↕", False, 0.9, 69283149],
+                                ['卡通青铜树，上方写着"神树"', "example_images/wenchuang/pos4.png", "Manual-draw(手绘)", "↕", False, 0.9, 69283149],
+                                ['卡通青铜面具，头顶刻着"王"', "example_images/wenchuang/pos4.png", "Manual-draw(手绘)", "↔", False, 0.9, 69283149],
                             ],
-                            [prompt, draw_img, pos_radio, sort_radio, revise_pos, img_count, seed],
+                            [prompt, draw_img, pos_radio, sort_radio, revise_pos, strength, seed],
                             examples_per_page=5,
                             label=''
                         )
@@ -444,18 +469,16 @@ with block:
                         gr.Markdown("")
                         run_edit = gr.Button(value="Run(运行)!", scale=0.3, elem_classes='run')
                         gr.Markdown("")
-                    with gr.Tab("中文示例"):
+                    with gr.Tab("示例"):
                         gr.Examples(
                             [
-                                ['精美的书法作品，上面写着“志” “存” “高” ”远“', "example_images/ref10.jpg", "example_images/edit10.png", 4, 98053044],
-                                ['一个表情包，小猪说 "下班"', "example_images/ref2.jpg", "example_images/edit2.png", 2, 43304008],
-                                ['一个中国古代铜钱，上面写着"乾" "隆"', "example_images/ref12.png", "example_images/edit12.png", 4, 89159482],
-                                ['一个漫画，上面写着" "', "example_images/ref14.png", "example_images/edit14.png", 4, 94081527],
-                                ['一个黄色标志牌，上边写着"不要" 和 "大意"', "example_images/ref3.jpg", "example_images/edit3.png", 2, 64010349],
-                                ['一个青铜鼎，上面写着"  "和"  "', "example_images/ref4.jpg", "example_images/edit4.png", 4, 71139289],
-                                ['一个建筑物前面的字母标牌， 上面写着 " "', "example_images/ref5.jpg", "example_images/edit5.png", 4, 50416289],
+                                ['精美的书法作品，上面写着“志” “存” “高” ”远“', "example_images/ref10.jpg", "example_images/edit10.png", 0.7, 98053044],
+                                ['“上”，“天”', "example_images/wenchuang/ori1.png", "example_images/wenchuang/edit1.png", 1, 80864653],
+                                ['一个漫画，上面写着" "', "example_images/ref14.png", "example_images/edit14.png", 0.7, 94081527],
+                                ['一个黄色标志牌，上边写着"不要" 和 "大意"', "example_images/ref3.jpg", "example_images/edit3.png", 0.7, 64010349],
+                                ['一个青铜鼎，上面写着"  "和"  "', "example_images/ref4.jpg", "example_images/edit4.png", 0.7, 71139289],
                             ],
-                            [prompt, ori_img, ref_img, img_count, seed],
+                            [prompt, ori_img, ref_img, strength, seed],
                             examples_per_page=5,
                             label=''
                         )
@@ -470,3 +493,4 @@ block.launch(
     root_path=f"/{os.getenv('GRADIO_PROXY_PATH')}" if os.getenv('GRADIO_PROXY_PATH') else ""
 )
 #block.launch(server_name='0.0.0.0')
+

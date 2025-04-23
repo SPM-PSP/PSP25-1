@@ -20,9 +20,9 @@ import time
 save_memory = False
 # parameters
 config_yaml = './models_yaml/anytext_sd15.yaml'
-ckpt_path = './models/anytext_v1.0.ckpt'
-json_path = '/data/vdb/yuxiang.tyx/AIGC/data/laion_word/test1k.json'
-output_dir = '/data/vdb/yuxiang.tyx/AIGC/eval/gen_imgs_test'
+ckpt_path = "D:/dachuan/models/hehe98/wenchuang.ckpt"
+json_path = "./benchmark/benchmark/wukong_word/test1k.json"
+output_dir = "./output"
 num_samples = 4
 image_resolution = 512
 strength = 1.0

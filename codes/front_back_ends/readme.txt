@@ -1,0 +1,1 @@
+运行脚本environment.sh和run.sh进行运行
