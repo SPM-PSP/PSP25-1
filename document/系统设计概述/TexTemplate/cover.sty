@@ -1,0 +1,113 @@
+\newcommand{\varTitle}{}
+\renewcommand{\title}[1]{\renewcommand{\varTitle}{#1}}
+\newcommand{\varTitleEng}{}
+\newcommand{\titleEng}[1]{\renewcommand{\varTitleEng}{#1}}
+
+\newcommand{\varAuthor}{}
+\renewcommand{\author}[1]{\renewcommand{\varAuthor}{#1}}
+\newcommand{\varAuthorEng}{}
+\newcommand{\authorEng}[1]{\renewcommand{\varAuthorEng}{#1}}
+
+\newcommand{\varDate}{}
+\renewcommand{\date}[1]{\renewcommand{\varDate}{#1}}
+
+\newcommand{\varAdviser}{}
+\newcommand{\adviser}[1]{\renewcommand{\varAdviser}{#1}}
+\newcommand{\varAdviserEng}{}
+\newcommand{\adviserEng}[1]{\renewcommand{\varAdviserEng}{#1}}
+
+\newcommand{\varClassName}{}
+\newcommand{\classname}[1]{\renewcommand{\varClassName}{#1}}
+
+\newcommand{\varCollege}{}
+\newcommand{\college}[1]{\renewcommand{\varCollege}{#1}}
+\newcommand{\varCollegeEng}{}
+\newcommand{\collegeEng}[1]{\renewcommand{\varCollegeEng}{#1}}
+
+\newcommand{\varMajor}{}
+\newcommand{\major}[1]{\renewcommand{\varMajor}{#1}}
+\newcommand{\varMajorEng}{}
+\newcommand{\majorEng}[1]{\renewcommand{\varMajorEng}{#1}}
+
+\newcommand{\varID}{}
+\newcommand{\id}[1]{\renewcommand{\varID}{#1}}
+
+\newcommand{\varGrade}{}
+\newcommand{\grade}[1]{\renewcommand{\varGrade}{#1}}
+
+% setting up the abstract
+\newcommand{\varKeyword}{}
+\newcommand{\keyword}[1]{\renewcommand{\varKeyword}{#1}}
+
+\newenvironment{abstractEng}[1]{
+\addtolength{\leftskip}{1.1cm}
+\addtolength{\rightskip}{1.1cm}
+\thispagestyle{empty}
+\addtocounter{page}{-1}
+\vspace*{1cm}
+\centerline{\heiti \zihao{-2} \textbf{\varTitleEng}}
+\vspace{1cm}
+\centerline{\kaishu \zihao{4} \varCollegeEng}
+\vspace{1cm}
+\centerline{\kaishu \zihao{4} Student:\varAuthorEng \hspace{1cm} Adviser:\varAdviserEng}
+\vspace{1.2cm}
+\kaishu \zihao{5} 
+\textbf{[Abstract]} \keyword{#1} }
+{\par \textbf{[Key Words]} \varKeyword \clearpage}
+
+\usepackage{xcolor}
+\usepackage[CJKbookmarks=true,pdfborder=0 0 1]{hyperref}
+\usepackage{wasysym}
+
+\usepackage{array}
+\newcommand{\makecover}{
+\thispagestyle{empty}
+\addtocounter{page}{-1}
+\vspace*{0cm}
+\centerline{\includegraphics[height=3.2cm]{./Image/scu2.png}}
+\vspace*{1.2cm}
+% \centerline{\songti \zihao{1} \textbf{本\hspace{1cm}科\hspace{1cm}生\hspace{1cm}课\hspace{1cm}程\hspace{1cm}论\hspace{1cm}文} } \par %skip bold,it's a hack and i dont know why
+% 智能老人看护系统
+\centerline{ \songti \zihao{1} \textbf{基于生成式 AI 的个性化文创图像作品设计系统} } \par
+\vspace*{0.5cm}
+\centerline{\songti \zihao{2} \textbf{技\hspace{1cm}术\hspace{1cm}文\hspace{1cm}档}}
+\vspace*{0.5cm}
+% \centerline{\songti \zihao{2} 项 \hspace{1cm}目\hspace{1cm}计\hspace{1cm}划\hspace{1cm}书}
+\centerline{\includegraphics[height=3.5cm]{./Image/logo.png}}
+\vspace*{5cm}
+
+
+
+
+
+\centerline{
+\begin{tabular}{ b{2cm} >{\centering\arraybackslash}b{8cm}}
+\songti \zihao{4} 任课教师 & \textbf{\kaishu \zihao{4} \varAdviser} \\[-3pt]
+\cline{2-2} \\[0.3cm]
+\end{tabular}
+}
+
+\centerline{
+\begin{tabular}{ b{2cm} >{\centering\arraybackslash}b{8cm}}
+\songti \zihao{4} 学\hspace{1cm}院 & \textbf{\kaishu \zihao{4} \varCollege} \\[-3pt]
+\cline{2-2} \\[0.3cm]
+\songti \zihao{4} 专\hspace{1cm}业 & \textbf{\kaishu \zihao{4} \varMajor} \\[-3pt]
+\cline{2-2} \\[0.3cm]
+\songti \zihao{4} 组\hspace{1cm}别 & \textbf{\kaishu \zihao{4} 第一组} \\[-3pt]
+\cline{2-2}  \\[0.3cm]
+\songti \zihao{4} 组\hspace{1cm}长 & \textbf{\kaishu \zihao{4} \varAuthor} \\[-3pt]
+\cline{2-2} \\[0.3cm]
+\songti \zihao{4} 成\hspace{1cm}员 & \textbf{\kaishu \zihao{4} 陈奕嘉，苏泳豪} \\[-3pt]
+\cline{2-2}
+\end{tabular}
+}
+
+
+
+% \cline{2-2} 
+
+\vfill\centerline{\songti \zihao{3}  }
+\centerline{\songti \zihao{3}\varDate}
+\clearpage
+}
+
