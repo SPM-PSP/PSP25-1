@@ -1,0 +1,38 @@
+\usepackage{listings}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{left=3cm,right=3cm,top=2cm,bottom=2cm}
+\usepackage{fontspec}
+\usepackage{float}
+\usepackage{fix-cm}
+\usepackage{ctex}
+\usepackage{tikz}
+
+\definecolor{Orange}{RGB}{255,165,0}
+\definecolor{BrickRed}{RGB}{203,65,84}
+\definecolor{ForestGreen}{RGB}{34,139,34}
+\definecolor{Violet}{RGB}{124,0,255}
+\definecolor{Gray}{RGB}{128,128,128}
+\setmainfont{Times New Roman}
+
+\lstset{
+    framerule=1pt,
+    frame=tb,
+    emphstyle={\small\ttfamily\bfseries\color{Orange}},
+    numbers=left,
+    numberstyle= \tiny\color{black},
+    basicstyle = \small\ttfamily,
+    keywordstyle    = \bfseries\color{BrickRed},
+    identifierstyle = \bfseries\color{black},
+    stringstyle     = \bfseries\color{ForestGreen},
+    commentstyle    = \bfseries\color{Violet},
+    breaklines      =   true,
+    columns         =   fixed,
+    basewidth       =   .5em,
+    backgroundcolor=\color{Gray!5},
+    tabsize=2,
+    showspaces=false,
+    showstringspaces=false,
+}
