@@ -1,0 +1,52 @@
+This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.9.2)  28 APR 2025 22:10
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**E:/daxue/.AAAterm/sophomore_second/Problem_solving_real_war/PSP251/PSP25-1/do
+cument/系统设计概述/系统设计概述latex/rep.tex
+
+(e:/daxue/.AAAterm/sophomore_second/Problem_solving_real_war/PSP251/PSP25-1/doc
+ument/系统设计概述/系统设计概述latex/rep.tex
+LaTeX2e <2023-11-01> patch level 1
+L3 programming layer <2024-02-20>
+(e:/texlive/2024/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2023/05/17 v1.4n Standard LaTeX document class
+(e:/texlive/2024/texmf-dist/tex/latex/base/size12.clo
+File: size12.clo 2023/05/17 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count184
+\c@section=\count185
+\c@subsection=\count186
+\c@subsubsection=\count187
+\c@paragraph=\count188
+\c@subparagraph=\count189
+\c@figure=\count190
+\c@table=\count191
+\abovecaptionskip=\skip48
+\belowcaptionskip=\skip49
+\bibindent=\dimen140
+)
+
+! LaTeX Error: File `./SCUformat.sty' not found.
+
+Type X to quit or <RETURN> to proceed,
+or enter new name. (Default extension: sty)
+
+Enter file name: 
+! Emergency stop.
+<read *> 
+         
+l.5 \usepackage
+               {./cover}^^M
+*** (cannot \read from terminal in nonstop modes)
+
+ 
+Here is how much of TeX's memory you used:
+ 232 strings out of 474773
+ 3218 string characters out of 5761290
+ 1917842 words of memory out of 5000000
+ 22474 multiletter control sequences out of 15000+600000
+ 558077 words of font info for 37 fonts, out of 8000000 for 9000
+ 1348 hyphenation exceptions out of 8191
+ 35i,0n,38p,223b,40s stack positions out of 10000i,1000n,20000p,200000b,200000s
+No pages of output.

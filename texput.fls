@@ -1,0 +1,5 @@
+PWD E:/daxue/.AAAterm/sophomore_second/Problem_solving_real_war/PSP251/PSP25-1
+INPUT e:/texlive/2024/texmf.cnf
+INPUT e:/texlive/2024/texmf-dist/web2c/texmf.cnf
+INPUT e:/texlive/2024/texmf-var/web2c/xetex/xelatex.fmt
+OUTPUT texput.log
