@@ -322,6 +322,9 @@ INPUT ./rep.toc
 INPUT ./rep.toc
 INPUT rep.toc
 OUTPUT rep.toc
+INPUT ./Image/image1.png
+INPUT ./Image/image1.png
+INPUT ./Image/image1.png
 INPUT ./Image/UI_1.png
 INPUT ./Image/UI_1.png
 INPUT ./Image/UI_1.png

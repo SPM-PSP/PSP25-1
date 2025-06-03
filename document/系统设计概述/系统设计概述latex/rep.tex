@@ -41,7 +41,7 @@ AI（人工智能）、SDD（软件设计文档）、VAE（变分自编码器）
 Text-control Diffusion Pipeline 、 Auxiliary Latent Module 、 Text Embedding
 Module、Gradio（UI 库）、Prompt（文本提示）、OCR（光
 学字符识别）、FID（图像质量指标）、CFG-Scale（无
-分类引导因子）、eta（扩散采样参数）等术语在文中根据需要进一步解释。
+分类引导因子）、eta（扩散采样参数）文字控制框架、扩散模型部分等术语在文中根据需要进一步解释。
 
 \section{系统概览}
 本系统是一个利用生成式 AI 的图像创作工具，支持文本生成图像和图像内
@@ -51,35 +51,59 @@ Diffusion 模型，通过 Web 界面（Gradio）与用户交互，后端使用 P
 度学习框架实现，支持 Docker 部署。系统的目的是解决文创产品同质化问题，赋
 能个体创作。
 
-\section{系统架构}
-\subsection{架构设计}
-系统分为三层：用户界面层（Gradio 实现）、应用逻辑层。
 
-用户界面层：负责输入（文本、图像、参数、坐标绘制）与结果展示。
+\section{关键技术设计}
+本系统基于阿里云开源的 AnyText 模型框架进行开发与扩展，整体架构由三个核心模块组成：辅助潜在模块（Auxiliary Latent Module）、文本嵌入模块（Text Embedding Module）以及文本控制扩散生成模块（Text-control Diffusion Pipeline）。在此基础上，我们对文字控制能力和图文融合性能进行定向增强，并完成了多项训练与优化工作。
 
-应用逻辑层：解析输入、格式化参数、调用模型、处理输出与数据管理。以 AnyText 为核心，包括三大子模块：
+\subsection{系统架构与模型设计}
+本系统使用 AnyText 模型，结合了 SD1.5 的图像扩散模型与文本控制机制，能够实现图像中文字的精确生成与编辑。模型架构如下(图\ref{fig:fusion})：
 
-\begin{enumerate}
-    \item 文本嵌入模块（Text Embedding Module）
-    \item 辅助潜变量模块（Auxiliary Latent Module）
-    \item 文本控制扩散管道（Text-control Diffusion Pipeline）
-\end{enumerate}
-\subsection{分解描述}
-Text Embedding Module：接收用户提示词和需渲染文本，对需要生成的文字
-用占位符占位，生成对应字形图，用OCR提取特征后替换占位符，然后传入到Clip编码器。
+\begin{itemize}
+    \item \textbf{Auxiliary Latent Module}：处理输入的文字渲染特征，与图像潜变量融合，指导扩散过程。
+    \item \textbf{Text Embedding Module}：将文字内容编码为向量特征，结合 OCR 与 Tokenizer 保持语义一致性。
+    \item \textbf{Text-control Diffusion Pipeline}：基于 UNet 和控制网络实现文字引导的图像生成，并引入 Text Perceptual Loss 实现图文融合感知优化。
+\end{itemize}
 
-Auxiliary Latent Module：掩码、字形图，通过卷积处理
-生成与扩散模型匹配的空间向量。
+该架构支持文字生成图与图像中指定区域的文字编辑，包括添加、修改与删除，具有良好的图文融合能力。
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=1\textwidth]{Image/image1.png}
+  \caption{模型示意图}
+  \label{fig:fusion}
+\end{figure}
 
-Diffusion Pipeline：以初始噪声为起点，联合文本嵌入与空间特征逐
-步去噪生成图像潜变量，最后 VAE 解码。
+\subsection{训练流程与数据处理}
 
-Gradio UI：提供文本输入、图像上传、画布交互、参数调节、结果展示等供用户操作的界面
-展示等功能。
-\subsection{设计原理}
-采用 AnyText + Stable Diffusion v1.5 架构，针对中文文本渲染难题，结合字形
-信息与位置控制,以Realistic\_Vision\_V4.0 作为底模保证图像质量和真实性，通过对AnyText框架进行中文语料微调
-提升中文文字的准确率，用Dreambooth 对扩散模型进行微调，采取Gradio 快速构建 用户界面。
+\subsubsection*{1. 文本控制框架训练}
+为了增强系统对多语言（尤其是中文）的文字控制能力，选用 AnyWord-3M 开源数据集进行训练。我们对数据进行了如下处理：
+
+\begin{itemize}
+    \item 数据筛选标准包括水印清晰度、语言有效性等，确保中文数据远大于英文占比。
+    \item 最终保留约 40 万张高质量图文对，利用 8 张 V100 GPU 进行训练，以提升控制文本生成位置与内容的能力。
+\end{itemize}
+
+\subsubsection*{2. 图像扩散模型训练}
+针对扩散模型部分，我们使用如下流程进行扩展训练：
+
+\begin{itemize}
+    \item 通过 Google、Edge、百度等搜索引擎爬取图像，筛选出约 1000 张图像用于微调；
+    \item 对图像进行水印去除与分辨率调整（统一至 512×512）；
+    \item 使用 \texttt{wd14-convnextv2-v2} 对图像进行标注与初步修改；
+    \item 基于 HuggingFace 平台下载 \texttt{Realistic\_Vision\_V4.0} 作为基础权重，采用 DreamBooth 方法进行少量样本微调训练，提升模型对图文细节的生成质量与鲁棒性。
+\end{itemize}
+
+\subsection{测试方式}
+
+本系统从文字生成与编辑两个方面对模型性能进行评估。
+
+\begin{itemize}
+    \item \textbf{文字生成与编辑评估}：采用 OCR 模型对生成图像中的文字进行识别，提取生成文本后与真实文本进行比对，计算准确率（仅完全匹配计为正确）与编辑距离，以衡量系统在控制文字内容与位置方面的精度。
+    
+    \item \textbf{生成图像质量评估}：对于图像整体质量，使用 FID（Fréchet Inception Distance）指标对 SD1.5 扩散模型生成的图像进行评估，并与原有模型进行对比，验证微调是否保留了原有模型的图像生成能力，避免过度遗忘（catastrophic forgetting）现象。
+    
+    \item \textbf{基准测试工具}：所有测试均采用 AnyText 官方发布的 \texttt{AnyText-benchmark} 工具链完成，确保结果的客观性和可比性。
+\end{itemize}
+
 
 \section{数据设计}
 \subsection{数据说明}
@@ -158,7 +182,7 @@ Gradio 是一个开源的 Python 库，允许用户快速创建和共享机器�
 界面上有说明、参数设置、文本输入框、模式选择、文字位置标注、样例（
 点击即可）、运行按钮、图片结果展示和加强训练的物品，用户可调整 CFG-Scale、Steps 等参数，查看结果并保存。
 \subsection{界面截图}
-详情见图1，图2.
+详情见图2，图3.
 \begin{figure}[htbp] % 控制图片浮动位置的选项 (h: here, t: top, b: bottom, p: page)
     \centering % 让图片在页面上居中显示
     \includegraphics[width=1\textwidth]{Image/UI_1.png} % 插入图片并设置宽度
